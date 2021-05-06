@@ -1,0 +1,2 @@
+class DataNotProvided(Exception):
+    pass

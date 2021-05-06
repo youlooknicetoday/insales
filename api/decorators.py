@@ -3,9 +3,9 @@ import time
 
 def cool_down(function):
     def wrapper(*args, **kwargs):
-        content, headers = function(*args, **kwargs)
-        if retry_after := headers.get('Retry-After'):
+        response = function(*args, **kwargs)
+        if retry_after := response.headers.get('Retry-After'):
             time.sleep(int(retry_after))
-            content, headers = function(*args, **kwargs)
-        return content, headers
+            response = function(*args, **kwargs)
+        return response
     return wrapper
