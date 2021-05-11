@@ -4,7 +4,7 @@ from fastapi.logger import logger
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from models import Order
+from schemas import Order
 
 
 app = FastAPI()

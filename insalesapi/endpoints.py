@@ -1,4 +1,3 @@
-import base64
 import uuid
 from typing import Union, Optional
 
@@ -7,21 +6,7 @@ from lxml import etree
 
 from .decorators import cool_down
 from .exceptions import DataNotProvided
-from .src import API
-
-
-class Endpoint:
-    headers = {"Content-Type": "application/xml; charset=utf-8"}
-    access = None
-
-    def __new__(cls, *args, **kwargs):
-        api = kwargs.pop('api', None)
-        if not api and not cls.access:
-            raise NotImplementedError
-        elif not cls.access and isinstance(api, API):
-            cls.access = api
-        instance = object.__new__(cls)
-        return instance
+from .src import Endpoint
 
 
 class Products(Endpoint):
@@ -37,7 +22,7 @@ class Images(Endpoint):
 
     @cool_down
     def get_all(self, product_id: Union[str, int]):
-        url = f'{self.access}/admin/products/{product_id}/images.xml'
+        url = f'{self.access}/admin/products/{product_id}/images.json'
         response = requests.get(url)
         return response
 
@@ -63,5 +48,5 @@ class Images(Endpoint):
             image = etree.SubElement(data, 'attachment')
             image.text = image_attachment
         data = etree.tostring(data, encoding='utf-8', xml_declaration=True, pretty_print=True)
-        response = requests.post(url, data=data, headers=self.headers)
+        response = requests.post(url, data=data, headers=self.access.headers)
         return response

@@ -6,13 +6,13 @@ from pathlib import Path
 import requests
 from PIL import Image
 
-from api.src import load_config
-from api.endpoints import Endpoint, Images, Products
-from api.images.utils import merge, IMAGE_FILES_DIR, load_image
+from insalesapi.src import init_credentials
+from insalesapi.endpoints import Images, Products
+from insalesapi.images.utils import merge, IMAGE_FILES_DIR, load_image
 
 config_file = Path.joinpath(Path(__file__).resolve().parent.parent, 'api.ini')
-config = load_config(config_file)
-base = Endpoint(api=config)
+init_credentials(config_file)
+
 
 images = Images()
 products = Products()
