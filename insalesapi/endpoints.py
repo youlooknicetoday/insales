@@ -4,8 +4,8 @@ from typing import Union, Optional
 import requests
 from lxml import etree
 
-from .decorators import cool_down
-from .exceptions import DataNotProvided
+from insalesapi.src.decorators import cool_down
+from insalesapi.src.exceptions import DataNotProvided
 from .src import Endpoint
 
 
