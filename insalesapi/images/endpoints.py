@@ -48,9 +48,9 @@ class ImagesController(Endpoint):
             image_url: Optional[HttpUrl] = None
     ) -> Image:
         if image_url and image_attachment:
-            raise ValueError('Only attachment or src url have to be passed')
+            raise ValueError('Only attachment or source url have to be passed')
         elif not image_url and not image_attachment:
-            raise DataNotProvided('Neither attachment nor src url was not passed')
+            raise DataNotProvided('Neither attachment nor source url was not passed')
         image_json = jsonable_encoder({
             'image': {
                 'attachment': image_attachment,

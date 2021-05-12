@@ -1,36 +1,18 @@
 from io import BytesIO
-
-from lxml import etree
 from pathlib import Path
-
-import requests
 from PIL import Image
 
+
 from insalesapi.src import init_credentials
-from insalesapi.endpoints import Images, Products
+from insalesapi.images.endpoints import ImagesController
 from insalesapi.images.utils import merge, IMAGE_FILES_DIR, load_image
-
-config_file = Path.joinpath(Path(__file__).resolve().parent.parent, 'api.ini')
-init_credentials(config_file)
+from insalesapi.products.endpoints import ProductsController
 
 
-images = Images()
-products = Products()
-products_ids = (
-    245742154, 245747651, 245748382, 245748947, 245751694, 245753129, 245754207, 245754337, 245754500,
-    245759317, 245760203, 245760496, 245760522, 245760561, 245761007, 245761338
-)
-
-data = requests.get('http://static.promodoma.ru/files/ontek.xml')
-tree = etree.fromstring(data.content)
 additional_image = load_image('mark.png')
 
 for product_id in products_ids:
     product_title = products.get_one(product_id).removesuffix(' + подарок')
-    try:
-        image_url = tree.xpath(f'//name[ text() = "{product_title}"]')[0].getparent().xpath('./picture')[0].text
-    except IndexError:
-        continue
     image = requests.get(image_url)
     image = Image.open(BytesIO(image.content))
     image = merge(image, additional_image, convert_to_base64=True)
@@ -45,3 +27,24 @@ def update_pictures():
         image = merge(image, additional_image)
         image.save(Path.joinpath(IMAGE_FILES_DIR, 'completed', f'new_{file.name}.png'), format='png')
 
+
+def get_all_promo_bundles(category_id):
+    pass
+
+
+def get_all_():
+    pass
+
+
+def main():
+    images = images_controller.get_all('245742154')
+    image_ids = [image.id for image in images.list]
+    print(image_ids)
+
+
+if __name__ == '__main__':
+    config_file = Path.joinpath(Path(__file__).resolve().parent.parent, 'api.ini')
+    init_credentials(config_file)
+    images_controller = ImagesController()
+    products_controller = ProductsController()
+    main()

@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, Union
 
-from ..images.schemas import Images
+from ..images.schemas import Image
 
 
 class ProductOptionName(BaseModel):
@@ -33,7 +33,7 @@ class ProductProperties(BaseModel):
 class ProductFieldValue(BaseModel):
     id: int
     product_field_id: int
-    value: str
+    value: Optional[str]
 
 
 class ProductFieldValues(BaseModel):
@@ -48,31 +48,32 @@ class ProductOptionValue(BaseModel):
 
 
 class ProductVariant(BaseModel):
-    variant_field_values: list
+    available: bool
     id: int
     title: str
     product_id: int
-    sku: str
+    sku: Optional[str]
+    quantity: Optional[int]
+    quantity_at_warehouse0: Optional[float]
     barcode: Optional[Union[str, int]]
     dimensions: Optional[str]
-    available: bool
-    image_ids: list[int]
-    created_at: datetime
-    updated_at: datetime
-    quantity: Optional[int]
+    weight: Optional[float]
+    price: float
+    price_in_site_currency: float
+    prices: list[Optional[float]]
+    prices_in_site_currency: list[Optional[float]]
+    base_price: float
+    base_price_in_site_currency: float
     cost_price: Optional[float]
     cost_price_in_site_currency: Optional[float]
-    price_in_site_currency: float
-    base_price: float
     old_price: Optional[float]
-    price2: Optional[float]
-    price: float
-    base_price_in_site_currency: float
     old_price_in_site_currency: Optional[float]
-    price2_in_site_currency: Optional[float]
-    prices: list[float]
-    prices_in_site_currency: list[float]
     option_values: list[ProductOptionValue]
+    created_at: datetime
+    updated_at: datetime
+    variant_field_values: list
+    image_id: Optional[int]
+    image_ids: list[Optional[int]]
 
 
 class ProductBundleComponent(BaseModel):
@@ -93,26 +94,30 @@ class Product(BaseModel):
     is_hidden: bool
     available: bool
     archived: bool
-    canonical_url_collection_id: int
+    canonical_url_collection_id: Optional[int]
     custom_template: Optional[bool]
     unit: str
     sort_weight: Optional[float]
     ignore_discounts: Optional[bool]
     vat: int
-    dimensions: str
+    dimensions: Optional[str]
     fiscal_product_type: int
     title: str
-    short_description: str
+    short_description: Optional[str]
     permalink: str
     html_title: Optional[str]
     meta_keywords: Optional[str]
     meta_description: Optional[str]
     currency_code: str
     collections_ids: list[int]
-    images: Images
-    option_names: ProductOptionNames
-    properties: ProductProperties
-    product_field_values: ProductFieldValues
+    images: list[Image]
+    option_names: list[ProductOptionName]
+    properties: list[ProductProperty]
+    product_field_values: list[ProductFieldValue]
     variants: list[ProductVariant]
     product_bundle_components: list
-    description: str
+    description: Optional[str]
+
+
+class Products(BaseModel):
+    list: list[Product]
