@@ -4,7 +4,7 @@ from typing import Union, Optional
 import requests
 from lxml import etree
 
-from insalesapi.src.decorators import cool_down
+from insalesapi.src.decorators import request
 from insalesapi.src.exceptions import DataNotProvided
 from .src import Endpoint
 
@@ -20,13 +20,13 @@ class Products(Endpoint):
 
 class Images(Endpoint):
 
-    @cool_down
+    @request
     def get_all(self, product_id: Union[str, int]):
         url = f'{self.access}/admin/products/{product_id}/images.json'
         response = requests.get(url)
         return response
 
-    @cool_down
+    @request
     def create(
             self,
             product_id: Union[str, int],

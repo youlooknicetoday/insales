@@ -1,18 +1,18 @@
 import requests
-from fastapi.encoders import jsonable_encoder
 
+from fastapi.encoders import jsonable_encoder
 from pydantic import HttpUrl
 from typing import Optional, Union
 
 from .schemas import Images, Image
 from ..src import Endpoint
 from ..src.exceptions import DataNotProvided
-from ..src.decorators import cool_down
+from ..src.decorators import request
 
 
 class ImagesController(Endpoint):
 
-    @cool_down
+    @request
     def _get_all(self, product_id: Union[int, str]) -> requests.Response:
         url = f'{self.access}/admin/products/{product_id}/images.json'
         response = requests.get(url)
@@ -22,7 +22,7 @@ class ImagesController(Endpoint):
         images_list = self._get_all(product_id).json()
         return Images(list=images_list)
 
-    @cool_down
+    @request
     def _get(self, product_id: Union[int, str], image_id: Union[int, str]) -> requests.Response:
         url = f'{self.access}/admin/products/{product_id}/images/{image_id}.json'
         response = requests.get(url)
@@ -32,7 +32,7 @@ class ImagesController(Endpoint):
         image = self._get(product_id, image_id).json()
         return Image(**image)
 
-    @cool_down
+    @request
     def _create(self, product_id: Union[int, str], image_json: dict) -> requests.Response:
         url = f'{self.access}/admin/products/{product_id}/images.json'
         response = requests.post(url, json=image_json)
@@ -41,7 +41,7 @@ class ImagesController(Endpoint):
     def create(
             self, /,
             product_id: Union[int, str],
-            filename: Optional[str] = None,
+            filename: str,
             title: Optional[str] = None,
             position: Optional[Union[int, str]] = None,
             image_attachment: Optional[bytes] = None,
@@ -62,7 +62,7 @@ class ImagesController(Endpoint):
         image = self._create(product_id, image_json).json()
         return Image(**image)
 
-    @cool_down
+    @request
     def _delete(self, product_id: Union[int, str], image_id: Union[int, str]) -> requests.Response:
         url = f'{self.access}/admin/products/{product_id}/images/{image_id}.json'
         response = requests.delete(url)
@@ -72,7 +72,7 @@ class ImagesController(Endpoint):
         response = self._delete(product_id, image_id)
         return 'ok' in response.json().values()
 
-    @cool_down
+    @request
     def _update(self, product_id: Union[int, str], image_id: Union[int, str], image_json: dict) -> requests.Response:
         url = f'{self.access}/admin/products/{product_id}/images/{image_id}.json'
         response = requests.put(url, json=image_json)
