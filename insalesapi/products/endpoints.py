@@ -6,9 +6,15 @@ from .schemas import Products, Product
 from ..src import logger
 from ..src.endpoints import BaseController, IterableMixin
 from ..src.exceptions import WrongPageNumber
+from ..where.endpoints import FilterProvider
 
 
 class ProductsController(BaseController, IterableMixin):
+
+    def __init__(self, *args, **kwargs):
+        filter_provider = FilterProvider()
+        print(filter_provider._builders)
+        # self.where = FilterProvider.get(self.__class__.__name__)
 
     def get_all(
             self, /,
@@ -63,6 +69,22 @@ class ProductsController(BaseController, IterableMixin):
             }}, exclude_none=True)
         product = self._create(uri, product_json).json()
         return Product(**product)
+
+    def delete(self, /, product_id: Union[int, str]):
+        uri = f'admin/products/{product_id}.json'
+        response = self._delete(uri)
+        return 'ok' in response.json().values()
+
+    def update(
+            self, /,
+            category_id: Union[int, str],
+            title: str, sku: Union[int, str], quantity: int, price: Union[int, str],
+            description: Optional[str] = None, short_description: Optional[str] = None,
+            sort_weight: Optional[Union[int, float]] = None,
+            ignore_discounts: int = 1, vat: int = -1,
+            product_field_values_attributes: Optional[list[dict[str, Union[int, str]]]] = None
+    ) -> Product:
+        pass
 
     def __iter__(self):
         for page in self.page_range:

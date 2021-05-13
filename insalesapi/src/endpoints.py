@@ -16,8 +16,7 @@ class BaseController:
             raise NotImplementedError("Config not initialized")
         elif not cls.__access:
             cls.__access = access
-        instance = object.__new__(cls)
-        return instance
+        return super().__new__(cls)
 
     @cached_property
     def connection_established(self) -> bool:
