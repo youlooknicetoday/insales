@@ -4,3 +4,7 @@ class DataNotProvided(Exception):
 
 class FieldNotFound(Exception):
     pass
+
+
+class WrongPageNumber(Exception):
+    pass
