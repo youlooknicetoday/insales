@@ -1,42 +1,23 @@
-import requests
-
 from fastapi.encoders import jsonable_encoder
 from pydantic import HttpUrl
 from typing import Optional, Union
 
 from .schemas import Images, Image
-from ..src import Endpoint
+from ..src.endpoints import BaseController, IterableMixin
 from ..src.exceptions import DataNotProvided
-from ..src.decorators import request
 
 
-class ImagesController(Endpoint):
-
-    @request
-    def _get_all(self, product_id: Union[int, str]) -> requests.Response:
-        url = f'{self.access}/admin/products/{product_id}/images.json'
-        response = requests.get(url)
-        return response
+class ImagesController(BaseController, IterableMixin):
 
     def get_all(self, /, product_id: Union[int, str]) -> Images:
-        images_list = self._get_all(product_id).json()
+        uri = f'admin/products/{product_id}/images.json'
+        images_list = self._get_all(uri).json()
         return Images(list=images_list)
 
-    @request
-    def _get(self, product_id: Union[int, str], image_id: Union[int, str]) -> requests.Response:
-        url = f'{self.access}/admin/products/{product_id}/images/{image_id}.json'
-        response = requests.get(url)
-        return response
-
     def get(self, /, product_id: Union[int, str], image_id: Union[int, str]) -> Image:
-        image = self._get(product_id, image_id).json()
+        uri = f'admin/products/{product_id}/images/{image_id}.json'
+        image = self._get(uri).json()
         return Image(**image)
-
-    @request
-    def _create(self, product_id: Union[int, str], image_json: dict) -> requests.Response:
-        url = f'{self.access}/admin/products/{product_id}/images.json'
-        response = requests.post(url, json=image_json)
-        return response
 
     def create(
             self, /,
@@ -47,6 +28,7 @@ class ImagesController(Endpoint):
             image_attachment: Optional[bytes] = None,
             image_url: Optional[HttpUrl] = None
     ) -> Image:
+        uri = f'admin/products/{product_id}/images.json'
         if image_url and image_attachment:
             raise ValueError('Only attachment or source url have to be passed')
         elif not image_url and not image_attachment:
@@ -59,24 +41,13 @@ class ImagesController(Endpoint):
                 'title': title,
                 'position': position
             }}, exclude_none=True)
-        image = self._create(product_id, image_json).json()
+        image = self._create(uri, image_json).json()
         return Image(**image)
 
-    @request
-    def _delete(self, product_id: Union[int, str], image_id: Union[int, str]) -> requests.Response:
-        url = f'{self.access}/admin/products/{product_id}/images/{image_id}.json'
-        response = requests.delete(url)
-        return response
-
     def delete(self, /, product_id: Union[int, str], image_id: Union[int, str]) -> bool:
-        response = self._delete(product_id, image_id)
+        uri = f'admin/products/{product_id}/images/{image_id}.json'
+        response = self._delete(uri)
         return 'ok' in response.json().values()
-
-    @request
-    def _update(self, product_id: Union[int, str], image_id: Union[int, str], image_json: dict) -> requests.Response:
-        url = f'{self.access}/admin/products/{product_id}/images/{image_id}.json'
-        response = requests.put(url, json=image_json)
-        return response
 
     def update(
             self, /,
@@ -87,10 +58,21 @@ class ImagesController(Endpoint):
     ) -> Image:
         if not position and not title:
             raise DataNotProvided('At least one value have to be passed')
+        uri = f'admin/products/{product_id}/images/{image_id}.json'
         image_json = jsonable_encoder({
             'image': {
                 'title': title,
                 'position': position
             }}, exclude_none=True)
-        image = self._update(product_id, image_id, image_json).json()
+        image = self._update(uri, image_json).json()
         return Image(**image)
+
+    def __iter__(self):
+        images = self.get_all(self.product_id)
+        for image in images.list:
+            yield image
+
+    def __call__(self, /, product_id: Union[int, str]):
+        self.product_id = product_id
+        return self
+

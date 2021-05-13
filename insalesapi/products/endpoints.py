@@ -11,18 +11,6 @@ from ..src.decorators import request
 
 class ProductsController(Endpoint):
 
-    # def __init__(self, per_page: Optional[int] = None):
-    #     self.per_page = per_page or 250
-    #
-    # def __iter__(self):
-    #     for page in range(1, self.pages_count):
-    #         yield self.get_all(page=page, per_page=self.per_page)
-    #
-    # @property
-    # def pages_count(self):
-    #     return self.count // self.per_page
-    #
-
     @request
     def _get_all(self, **params) -> requests.Response:
         url = f'{self.access}/admin/products.json'
@@ -53,6 +41,7 @@ class ProductsController(Endpoint):
         return response
 
     def get(self, /, product_id: Union[int, str]) -> Product:
+        uri = f'/admin/products/{product_id}.json'
         product = self._get(product_id).json()
         return Product(**product)
 
@@ -67,12 +56,6 @@ class ProductsController(Endpoint):
         result = self._count().json()
         return result['count']
 
-    @request
-    def _create(self, product_json: dict) -> requests.Response:
-        url = f'{self.access}/admin/products.json'
-        response = requests.post(url, json=product_json)
-        return response
-
     def create(
             self, /,
             category_id: Union[int, str],
@@ -82,6 +65,7 @@ class ProductsController(Endpoint):
             ignore_discounts: int = 1, vat: int = -1,
             product_field_values_attributes: Optional[list[dict[str, Union[int, str]]]] = None
     ) -> Product:
+        uri = '/admin/products.json'
         variants_attributes: list[dict[str, Union[int, str]]] = [{'sku': sku, 'quantity': quantity, 'price': price}]
         product_json = jsonable_encoder({
             'product': {
