@@ -1,14 +1,13 @@
-from datetime import datetime
-from typing import Optional, Union
-
-from ..src.endpoints import BaseController, IterableMixin
-from ..src.exceptions import DataNotProvided
+from .endpoints import BaseController, IterableMixin
+from ..products.endpoints import ProductsController
 
 
-def register_builders():
-    factory = CollectControllerFactory()
-    factory.register_builder('ProductsController', ProductsFilter())
-    factory.register_builder('CollectionsController', CollectionsFilter)
+def register_filters():
+    factory = FiltersProvider()
+    factory.register_builder(ProductsController, ProductsFilter)
+    # factory.register_builder('CollectionsController', CollectionsFilter)
+    print(factory)
+    return factory
 
 
 class CollectControllerFactory:
@@ -26,10 +25,10 @@ class CollectControllerFactory:
         return builder(**kwargs)
 
 
-class FilterProvider(CollectControllerFactory):
+class FiltersProvider(CollectControllerFactory):
 
-    def get(self, caller_name):
-        return self.create(caller_name)
+    def get(self, key, **kwargs):
+        return self.create(key, **kwargs)
 
 
 class ProductsFilter(BaseController, IterableMixin):
@@ -50,18 +49,14 @@ class ProductsFilter(BaseController, IterableMixin):
 
 class CollectionsFilter(BaseController, IterableMixin):
 
-    def __init__(self, product_id):
-        self.product_id = product_id
-
-    def get_collector(self, category_id, product_id):
-        if not category_id and not product_id:
-            raise DataNotProvided
+    def get_all(self):
+        uri = 'admin/collects.json'
+        collections = self._get_all(uri, product_id=self.product_id).json()
+        return collections
 
     def __iter__(self):
         pass
 
-    def __call__(self, *args, **kwargs):
-        pass
-
-
-
+    def __call__(self, /, product_id, *args, **kwargs):
+        self.product_id = product_id
+        return self

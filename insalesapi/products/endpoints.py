@@ -1,20 +1,20 @@
+import logging
+
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 from typing import Optional, Union
 
 from .schemas import Products, Product
-from ..src import logger
 from ..src.endpoints import BaseController, IterableMixin
 from ..src.exceptions import WrongPageNumber
-from ..where.endpoints import FilterProvider
+
+logger = logging.getLogger(__name__)
 
 
 class ProductsController(BaseController, IterableMixin):
 
-    def __init__(self, *args, **kwargs):
-        filter_provider = FilterProvider()
-        print(filter_provider._builders)
-        # self.where = FilterProvider.get(self.__class__.__name__)
+    def __init__(self):
+        self.where = self.filters.get(self.__class__)
 
     def get_all(
             self, /,
