@@ -5,8 +5,7 @@ from ..products.endpoints import ProductsController
 def register_filters():
     factory = FiltersProvider()
     factory.register_builder(ProductsController, ProductsFilter)
-    # factory.register_builder('CollectionsController', CollectionsFilter)
-    print(factory)
+    # factory.register_builder(CollectionsController, CollectionsFilter)
     return factory
 
 
@@ -35,15 +34,16 @@ class ProductsFilter(BaseController, IterableMixin):
 
     def get_all(self):
         uri = 'admin/collects.json'
-        products = self._get_all(uri, category_id=self.category_id).json()
+        products = self._get_all(uri, collection_id=self.collection_id).json()
         return products
 
     def __iter__(self):
         for product in self.get_all():
-            yield product['id']
+            yield product
 
-    def __call__(self, /, category_id: int):
-        self.category_id = category_id
+    def __call__(self, /, collection_id: int, *args, **kwargs):
+        self.collection_id = collection_id
+        print(self.collection_id)
         return self
 
 
