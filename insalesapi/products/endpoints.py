@@ -24,14 +24,14 @@ class ProductsController(BaseController, IterableMixin):
             from_id: Optional[Union[int, str]] = None,
             with_deleted: Optional[bool] = None,
             deleted: Optional[bool] = None
-    ) -> Products:
+    ) -> list[Product]:
         uri = 'admin/products.json'
         if per_page and not 10 <= per_page <= 250:
             logger.info('%s', 'Per page param have to be greater or equal 10 and less or equal 250')
         products_list = self._get_all(
             uri, page=page, per_page=per_page, updated_since=updated_since, from_id=from_id,
             with_deleted=with_deleted, deleted=deleted).json()
-        return Products(list=products_list)
+        return Products(list=products_list).list
 
     def get(self, /, product_id: Union[int, str]) -> Product:
         uri = f'admin/products/{product_id}.json'
