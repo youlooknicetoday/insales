@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, HttpUrl
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 
 class FieldValue(BaseModel):
@@ -22,13 +22,13 @@ class OrderLine(BaseModel):
     full_total_price: float
     discounts_amount: float
     quantity: int
-    reserved_quantity: int
-    weight: int
-    dimensions: int
+    reserved_quantity: Optional[int]
+    weight: Optional[float]
+    dimensions: Optional[str]
     variant_id: int
     product_id: int
-    sku: str
-    barcode: Union[str, int]
+    sku: Optional[str]
+    barcode: Optional[Union[int, str]]
     title: str
     unit: str
     comment: Optional[str]
@@ -46,14 +46,14 @@ class OrderChange(BaseModel):
     id: int
     created_at: datetime
     action: str
-    value_was: str
-    value_is: str
+    value_was: Any
+    value_is: Any
     full_description: str
-    user_name:str
+    user_name: Optional[str]
 
 
 class Order(BaseModel):
-    field_values: list[FieldValue]
+    fields_values: list[FieldValue]
     order_lines: list[OrderLine]
     order_changes: list[OrderChange]
     discount: Optional[float]
@@ -73,29 +73,29 @@ class Order(BaseModel):
     full_delivery_price: float
     payment_description: str
     payment_title: str
-    first_referer: HttpUrl
+    first_referer: Optional[HttpUrl]
     first_current_location: str
     first_query: Optional[str]
-    first_source_domain: str
+    first_source_domain: Optional[str]
     first_source: str
-    referer: HttpUrl
+    referer: Optional[HttpUrl]
     current_location: str
     query: Optional[str]
-    source_domain: str
+    source_domain: Optional[str]
     source: str
     fulfillment_status: str
     custom_status: dict[str, str]
-    delivered_at: datetime
+    delivered_at: Optional[datetime]
     accepted_at: datetime
     created_at: datetime
     updated_at: datetime
     financial_status: str
-    delivery_date: datetime
-    delivery_from_hour: datetime
-    delivery_from_minutes: datetime
-    delivery_to_hour: datetime
-    delivery_to_minutes: datetime
-    paid_at: datetime
+    delivery_date: Optional[datetime]
+    delivery_from_hour: Optional[int]
+    delivery_from_minutes: Optional[int]
+    delivery_to_hour: Optional[int]
+    delivery_to_minutes: Optional[int]
+    paid_at: Optional[datetime]
     delivery_variant_id: int
     payment_gateway_id: int
     margin: float
