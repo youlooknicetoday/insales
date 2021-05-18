@@ -7,9 +7,9 @@ from .decorators import request
 
 
 class BaseController:
-    __access = None
     headers = {'Content-Type': 'application/json; charset=utf-8'}
-    filters = None
+    _filters = None
+    __access = None
 
     def __new__(cls, *args, **kwargs):
         access = kwargs.pop('access', None)
@@ -21,7 +21,7 @@ class BaseController:
 
     @classmethod
     def register_filters(cls, filters_provider):
-        cls.filters = filters_provider
+        cls._filters = filters_provider
 
     @cached_property
     def connection_established(self) -> bool:

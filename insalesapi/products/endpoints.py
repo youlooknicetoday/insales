@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ProductsController(BaseController, IterableMixin):
 
     def __init__(self):
-        self.where = self.filters.get(self.__class__)
+        self.where = self._filters.get(self.__class__)
 
     def get_all(
             self, /,
@@ -89,7 +89,7 @@ class ProductsController(BaseController, IterableMixin):
     def __iter__(self) -> Iterator[Product]:
         for page in self.page_range:
             products = self.get_all(page, self.per_page)
-            for product in products.list:
+            for product in products:
                 yield product
 
     def __call__(self, /, start_page: int = 1, end_page: Optional[int] = None, per_page: int = 100):

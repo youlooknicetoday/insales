@@ -10,6 +10,12 @@ class ProductsFilter(BaseController, IterableMixin):
         products = self._get_all(uri, collection_id=self.collection_id).json()
         return products
 
+    @property
+    def count(self):
+        uri = f'admin/products/count.json?collection_id={self.collection_id}'
+        result = self._get(uri).json()
+        return result['count']
+
     def __iter__(self) -> Iterator[str]:
         for item in self.get_all():
             yield item['product_id']
