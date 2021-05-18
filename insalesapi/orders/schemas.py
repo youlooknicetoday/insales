@@ -101,7 +101,7 @@ class Order(BaseModel):
     margin: float
     client_transaction_id: Optional[int]
     currency_code: str
-    cookies: dict[Optional[str, str]]
+    cookies: Optional[dict[str, str]]
     account_id: int
     manager_comment: Optional[str]
     locale: str
