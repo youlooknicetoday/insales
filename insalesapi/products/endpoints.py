@@ -2,7 +2,7 @@ import logging
 
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
-from typing import Optional, Union
+from typing import Optional, Union, Iterator
 
 from .schemas import Products, Product
 from ..src.endpoints import BaseController, IterableMixin
@@ -86,7 +86,7 @@ class ProductsController(BaseController, IterableMixin):
     ) -> Product:
         pass
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Product]:
         for page in self.page_range:
             products = self.get_all(page, self.per_page)
             for product in products.list:

@@ -30,50 +30,13 @@ class OrdersController(BaseController):
             payment_gateway_id=payment_gateway_id).json()
         return orders_list
 
+    def get(self, /, order_id: Union[int, str]) -> dict:
+        uri = f'admin/orders/{order_id}.json'
+        order = self._get(uri).json()
+        return order
+
     @property
     def count(self) -> int:
         uri = 'admin/orders/count.json'
         result = self._get(uri).json()
         return result['count']
-
-    def create(
-            self, /,
-            category_id: Union[int, str],
-            title: str, sku: Union[int, str], quantity: int, price: Union[int, str],
-            description: Optional[str] = None, short_description: Optional[str] = None,
-            sort_weight: Optional[Union[int, float]] = None,
-            ignore_discounts: int = 1, vat: int = -1,
-            product_field_values_attributes: Optional[list[dict[str, Union[int, str]]]] = None
-    ) -> dict:
-        uri = 'admin/products.json'
-        variants_attributes: list[dict[str, Union[int, str]]] = [{'sku': sku, 'quantity': quantity, 'price': price}]
-        product_json = jsonable_encoder({
-            'product': {
-                'category_id': category_id,
-                'title': title,
-                'variants_attributes': variants_attributes,
-                'ignore_discounts': ignore_discounts,
-                'vat': vat,
-                'description': description,
-                'short_description': short_description,
-                'sort_weight': sort_weight,
-                'product_field_values_attributes': product_field_values_attributes
-            }}, exclude_none=True)
-        product = self._create(uri, product_json).json()
-        return Product(**product)
-
-    def delete(self, /, product_id: Union[int, str]):
-        uri = f'admin/products/{product_id}.json'
-        response = self._delete(uri)
-        return 'ok' in response.json().values()
-
-    def update(
-            self, /,
-            category_id: Union[int, str],
-            title: str, sku: Union[int, str], quantity: int, price: Union[int, str],
-            description: Optional[str] = None, short_description: Optional[str] = None,
-            sort_weight: Optional[Union[int, float]] = None,
-            ignore_discounts: int = 1, vat: int = -1,
-            product_field_values_attributes: Optional[list[dict[str, Union[int, str]]]] = None
-    ) -> Product:
-        pass

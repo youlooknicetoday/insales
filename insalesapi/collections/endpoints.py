@@ -1,13 +1,20 @@
+import logging
+
 from datetime import datetime
 from typing import Optional, Union
 
 from .schemas import Collections, Collection
-from ..src import logger
 from ..src.endpoints import BaseController, IterableMixin
 from ..src.exceptions import WrongPageNumber
 
 
+logger = logging.getLogger(__name__)
+
+
 class CollectionsController(BaseController, IterableMixin):
+
+    def __init__(self):
+        self.where = self.filters.get(self.__class__)
 
     def get_all(
             self, /,
@@ -25,8 +32,8 @@ class CollectionsController(BaseController, IterableMixin):
 
     def get(self, /, collection_id: Union[int, str]) -> Collection:
         uri = f'admin/collections/{collection_id}.json'
-        product = self._get(uri).json()
-        return product
+        collection = self._get(uri).json()
+        return Collection(**collection)
 
     def __iter__(self):
         pass
