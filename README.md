@@ -1,6 +1,7 @@
 # InSales
 Данный модуль является оберткой для API InSales
 
+Также в модуле <a href="/insales/tree/master/discounts">discounts</a> пример работы с внешними скидками
 ## Пример использования
 Инициализация
 ```python
@@ -19,8 +20,10 @@ three_weeks = datetime.now() - timedelta(days=21)
 for product in products.get_all(page=1, per_page=42, updated_since=three_weeks):
     print(product.title)
 ```
-Фильтрация по айди категории происходит следующим образом <br>
-Фильтр <strong>where</strong> возвращает список id 
+Фильтр **where** возвращает список id 
+
+Фильтрация по айди категории происходит следующим образом:
+
 ```python
 for product_id in products.where(collection_id=18489984):
     product = products.get(product_id)
