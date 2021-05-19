@@ -10,6 +10,21 @@ from ..src.endpoints import BaseController
 logger = logging.getLogger(__name__)
 
 
+def prepare(**fields):
+    """
+    Function for formatting params in orders
+    If you would like to get orders with many statuses like
+    fulfillment_status=["new", "delivered"]
+    url have to be like this: /admin/orders.json?fulfillment_status[]=new&fulfillment_status[]=delivered
+    :param fields: dict[str, str]
+    :return: dict[str, str] formatted fields for url param
+    """
+    tmp = fields.copy()
+    for key in tmp.keys():
+        fields[f'{key}[]'] = fields.pop(key)
+    return fields
+
+
 class OrdersController(BaseController):
 
     def get_all(
@@ -26,10 +41,11 @@ class OrdersController(BaseController):
         uri = 'admin/orders.json'
         if per_page and not 10 <= per_page <= 250:
             logger.info('%s', 'Per page param have to be greater or equal 10 and less or equal 250')
-        orders_list = self._get_all(
-            uri, page=page, per_page=per_page, updated_since=updated_since, from_id=from_id,
+        prepared_fields = prepare(
             fulfillment_status=fulfillment_status, delivery_variant=delivery_variant,
-            payment_gateway_id=payment_gateway_id).json()
+            payment_gateway_id=payment_gateway_id)
+        orders_list = self._get_all(uri, page=page, per_page=per_page, updated_since=updated_since, from_id=from_id,
+                                    **prepared_fields).json()
         return Orders(list=orders_list).list
 
     def get(self, /, order_id: Union[int, str]) -> Order:
