@@ -1,7 +1,7 @@
 # InSales
 Данный модуль является оберткой для API InSales
 
-Также в модуле <a href="/insales/tree/master/discounts">discounts</a> пример работы с внешними скидками
+Также в модуле <a href="/tree/master/discounts">discounts</a> пример работы с внешними скидками
 ## Пример использования
 Инициализация
 ```python
