@@ -1,5 +1,5 @@
 # InSales
-Данный модуль является оберткой для API InSales
+Данный модуль является оберткой для API InSales реализованный на Python
 
 Также в модуле <a href="https://github.com/youlooknicetoday/insales/tree/master/discounts">discounts</a> пример работы с внешними скидками
 ## Пример использования
