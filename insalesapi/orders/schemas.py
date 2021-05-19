@@ -2,16 +2,8 @@ from datetime import datetime
 from pydantic import BaseModel, HttpUrl
 from typing import Optional, Union, Any
 
-
-class FieldValue(BaseModel):
-    id: int
-    field_id: int
-    value: Union[int, str]
-    created_at: datetime
-    updated_at: datetime
-    type: str
-    name: str
-    handle: Optional[str]
+from ..src.schemas import FieldValue
+from ..clients.schemas import Client
 
 
 class OrderLine(BaseModel):
@@ -56,10 +48,10 @@ class Order(BaseModel):
     fields_values: list[FieldValue]
     order_lines: list[OrderLine]
     order_changes: list[OrderChange]
-    discount: Optional[float]
+    discount: Optional[Union[float, dict[str, Any]]]
     discounts: list
     # shipping_address
-    # client
+    client: Client
     total_price: float
     items_price: float
     id: int
@@ -71,7 +63,7 @@ class Order(BaseModel):
     delivery_description: str
     delivery_price: float
     full_delivery_price: float
-    payment_description: str
+    payment_description: Optional[str]
     payment_title: str
     first_referer: Optional[HttpUrl]
     first_current_location: str
