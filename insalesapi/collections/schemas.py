@@ -26,8 +26,8 @@ class Collection(BaseModel):
     permalink: str
     url: str
     field_values: list[FieldValue]
-    description: str
-    seo_description: str
+    description: Optional[str]
+    seo_description: Optional[str]
 
 
 class Collections(BaseModel):
