@@ -7,8 +7,8 @@ import base64
 IMAGE_FILES_DIR = Path.joinpath(Path(__file__).resolve().parent, 'files')
 
 
-# Convert Image to Base64 
 def convert_image_to_base64(image: Image):
+    # Convert Image to Base64
     buff = BytesIO()
     image.save(buff, format="PNG")
     img_str = base64.b64encode(buff.getvalue())
@@ -22,9 +22,7 @@ def merge(base_image: Image, additional_image: Image, convert_to_base64: bool = 
     height_for_mark = height // 4
     additional_image = additional_image.resize((width_for_mark, height_for_mark), Image.ANTIALIAS)
     base_image.alpha_composite(additional_image, (width - width_for_mark - 40, height - height_for_mark - 40))
-    if convert_to_base64:
-        return convert_image_to_base64(base_image)
-    return base_image
+    return convert_image_to_base64(base_image) if convert_to_base64 else base_image
 
 
 def load_image(filename: str) -> Image:

@@ -11,7 +11,7 @@ class Client(BaseModel):
     name: str
     phone: str
     created_at: datetime
-    updated_at: str
+    updated_at: datetime
     registered: bool
     subscribe: bool
     client_group_id: Optional[int]

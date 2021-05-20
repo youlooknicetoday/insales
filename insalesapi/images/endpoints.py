@@ -9,10 +9,10 @@ from ..src.exceptions import DataNotProvided
 
 class ImagesController(BaseController, IterableMixin):
 
-    def get_all(self, /, product_id: Union[int, str]) -> Images:
+    def get_all(self, /, product_id: Union[int, str]) -> list[Image]:
         uri = f'admin/products/{product_id}/images.json'
         images_list = self._get_all(uri).json()
-        return Images(list=images_list)
+        return Images(list=images_list).list
 
     def get(self, /, product_id: Union[int, str], image_id: Union[int, str]) -> Image:
         uri = f'admin/products/{product_id}/images/{image_id}.json'
@@ -69,10 +69,9 @@ class ImagesController(BaseController, IterableMixin):
 
     def __iter__(self):
         images = self.get_all(self.product_id)
-        for image in images.list:
+        for image in images:
             yield image
 
     def __call__(self, /, product_id: Union[int, str]):
         self.product_id = product_id
         return self
-

@@ -44,13 +44,77 @@ class OrderChange(BaseModel):
     user_name: Optional[str]
 
 
+class Location(BaseModel):
+    kladr_code: Optional[str]
+    zip: Optional[int]
+    region_zip: Optional[int]
+    country: str
+    state: str
+    state_type: Optional[str]
+    area: Optional[str]
+    area_type: Optional[str]
+    city: Optional[str]
+    city_type: Optional[str]
+    settlement: Optional[str]
+    settlement_type: Optional[str]
+    address: str
+    street: Optional[str]
+    street_type: Optional[str]
+    house: Optional[str]
+    flat: Optional[int]
+    is_kladr: bool
+    latitude: Optional[float]
+    longitude: Optional[float]
+    autodetected: Optional[bool]
+
+
+class ShippingAddress(BaseModel):
+    id: int
+    fields_values: list[FieldValue]
+    name: str
+    surname: Optional[str]
+    middlename: Optional[str]
+    phone: str
+    full_name: str
+    full_locality_name: Optional[str]
+    full_delivery_address: str
+    address_for_gis: str
+    location_valid: bool
+    address: Optional[str]
+    country: Optional[str]
+    state: str
+    city: str
+    zip: Optional[int]
+    street: Optional[str]
+    house: Optional[str]
+    flat: Optional[str]
+    location: Location
+
+
+class DeliveryInterval(BaseModel):
+    min_days: Optional[int]
+    max_days: Optional[int]
+    description: Optional[str]
+
+
+class DeliveryInfo(BaseModel):
+    delivery_variant_id: Optional[int]
+    tariff_id: Optional[int]
+    title: Optional[str]
+    description: Optional[str]
+    price: Optional[float]
+    shipping_company: Optional[str]
+    shipping_company_handle: Optional[str]
+    delivery_interval: DeliveryInterval
+
+
 class Order(BaseModel):
     fields_values: list[FieldValue]
     order_lines: list[OrderLine]
     order_changes: list[OrderChange]
     discount: Optional[Union[float, dict[str, Any]]]
     discounts: list
-    # shipping_address
+    shipping_address: ShippingAddress
     client: Client
     total_price: float
     items_price: float
@@ -97,7 +161,7 @@ class Order(BaseModel):
     account_id: int
     manager_comment: Optional[str]
     locale: str
-    # delivery_info
+    delivery_info: DeliveryInfo
     responsible_user_id: Optional[int]
     total_profit: float
     warehouse_id: int

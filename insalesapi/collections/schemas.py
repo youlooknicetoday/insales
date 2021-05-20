@@ -32,4 +32,3 @@ class Collection(BaseModel):
 
 class Collections(BaseModel):
     list: list[Collection]
-
