@@ -4,6 +4,7 @@ from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 from typing import Optional, Union, Iterator
 
+from .related import RelatedProducts
 from .schemas import Products, Product
 from ..src.endpoints import BaseController, IterableMixin
 from ..src.exceptions import WrongPageNumber
@@ -15,6 +16,7 @@ class ProductsController(BaseController, IterableMixin):
 
     def __init__(self):
         self.where = self._filters.get(self.__class__)
+        self.related = RelatedProducts()
 
     def get_all(
             self, /,

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from pydantic import BaseModel, HttpUrl
 from typing import Optional, Union, Any
 
@@ -83,7 +83,7 @@ class ShippingAddress(BaseModel):
     address: Optional[str]
     country: Optional[str]
     state: str
-    city: str
+    city: Optional[str]
     zip: Optional[int]
     street: Optional[str]
     house: Optional[str]
@@ -130,23 +130,23 @@ class Order(BaseModel):
     payment_description: Optional[str]
     payment_title: str
     first_referer: Optional[HttpUrl]
-    first_current_location: str
+    first_current_location: Optional[str]
     first_query: Optional[str]
     first_source_domain: Optional[str]
     first_source: str
-    referer: Optional[HttpUrl]
-    current_location: str
+    referer: Optional[Union[HttpUrl, str]]
+    current_location: Optional[str]
     query: Optional[str]
     source_domain: Optional[str]
     source: str
     fulfillment_status: str
     custom_status: dict[str, str]
     delivered_at: Optional[datetime]
-    accepted_at: datetime
+    accepted_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
     financial_status: str
-    delivery_date: Optional[datetime]
+    delivery_date: Optional[date]
     delivery_from_hour: Optional[int]
     delivery_from_minutes: Optional[int]
     delivery_to_hour: Optional[int]

@@ -22,10 +22,17 @@ for product in products.get_all(page=1, per_page=42, updated_since=three_weeks):
 ```
 Фильтр **where** возвращает список id 
 
-Фильтрация по айди категории происходит следующим образом:
+Фильтрация по id категории происходит следующим образом:
 
 ```python
 for product_id in products.where(collection_id=18489984):
+    product = products.get(product_id)
+    print(product.title)
+```
+
+Также есть фильтр сопутсвующих товаров:
+```python
+for product_id in products.related(product_id=product_id):
     product = products.get(product_id)
     print(product.title)
 ```

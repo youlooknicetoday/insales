@@ -1,6 +1,7 @@
 import configparser
 import logging
 
+from base64 import b64encode
 from typing import Union
 from pathlib import Path
 
@@ -17,8 +18,14 @@ def init_credentials(path: Union[str, Path]) -> bool:
     )
     config = configparser.ConfigParser()
     config.read(path)
-    access = 'http://%(apikey)s:%(password)s@%(hostname)s' % config['insales']
-    base = BaseController(access=access)
+    auth, hostname = (
+        '%(apikey)s:%(password)s' % config['insales'],
+        'http://%(hostname)s' % config['insales']
+    )
+    auth = b64encode(auth.encode('utf-8')).decode('utf-8')
+    BaseController.headers['Authorization'] = f'Basic {auth}'
+    BaseController.hostname = hostname
+    base = BaseController()
     if base.connection_established:
         base_filters = register_filters()
         base.register_filters(base_filters)

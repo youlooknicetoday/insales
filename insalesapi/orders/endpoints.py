@@ -6,6 +6,7 @@ from typing import Optional, Union
 
 from .schemas import Order, Orders
 from ..src.endpoints import BaseController
+from ..src.exceptions import WrongPageNumber
 
 logger = logging.getLogger(__name__)
 
@@ -58,3 +59,17 @@ class OrdersController(BaseController):
         uri = 'admin/orders/count.json'
         result = self._get(uri).json()
         return result['count']
+
+    def __iter__(self):
+        for page in self.page_range:
+            orders = self.get_all(page, self.per_page)
+            for order in orders:
+                yield order
+
+    def __call__(self, /, start_page: int = 1, end_page: Optional[int] = None, per_page: int = 100):
+        if not start_page > 0:
+            raise WrongPageNumber('Start page must be greater than zero')
+        self.per_page = per_page
+        end_page = end_page or self.count // self.per_page + 2
+        self.page_range = range(start_page, end_page)
+        return self
