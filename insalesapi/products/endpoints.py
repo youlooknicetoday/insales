@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 
 class ProductsController(BaseController, IterableMixin):
 
-    def __init__(self):
-        self.where = self._filters.get(self.__class__)
-        self.related = RelatedProducts()
+    def __init__(self, api):
+        super().__init__(api)
+        # self.where = self._filters.get(self.__class__)
+        self.related = RelatedProducts(self.api)
 
     def get_all(
             self, /,
@@ -79,14 +80,25 @@ class ProductsController(BaseController, IterableMixin):
 
     def update(
             self, /,
-            category_id: Union[int, str],
-            title: str, sku: Union[int, str], quantity: int, price: Union[int, str],
+            product_id: Union[int, str],
+            title: Optional[str] = None, sku: Optional[Union[int, str]] = None,
+            quantity: Optional[int] = None, price: Optional[Union[int, str]] = None,
             description: Optional[str] = None, short_description: Optional[str] = None,
-            sort_weight: Optional[Union[int, float]] = None,
-            ignore_discounts: int = 1, vat: int = -1,
-            product_field_values_attributes: Optional[list[dict[str, Union[int, str]]]] = None
+            **extra_fields
     ) -> Product:
-        pass
+        uri = f'admin/products/{product_id}.json'
+        product_json = jsonable_encoder({
+            'product': {
+                'title': title,
+                'sku': sku,
+                'quantity': quantity,
+                'price': price,
+                'description': description,
+                'short_description': short_description,
+                **extra_fields
+            }}, exclude_none=True)
+        product = self._update(uri, product_json).json()
+        return Product(**product)
 
     def __iter__(self) -> Iterator[Product]:
         for page in self.page_range:
