@@ -133,3 +133,4 @@ api.ini
 .idea
 insalesapi/images/files
 analytics
+utils/models

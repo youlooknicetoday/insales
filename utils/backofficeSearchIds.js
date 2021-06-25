@@ -30,3 +30,6 @@ function getAllProductsIds() {
     }
     return ids
 }
+
+result = getAllProductsIds();
+JSON.stringify(result)
