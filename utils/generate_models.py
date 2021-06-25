@@ -2,7 +2,6 @@ import requests
 import subprocess
 import tempfile
 
-from functools import cached_property
 from lxml import html
 from pathlib import Path
 
@@ -19,7 +18,11 @@ class Models:
         self.json = tempfile.NamedTemporaryFile(suffix='.json')
         self.models_path = Path.joinpath(Path(__file__).parent.resolve(), 'models')
 
-    @cached_property
+    def check_dir(self):
+        if not self.models_path.exists():
+            self.models_path.mkdir()
+
+    @property
     def all_routes(self):
         response = requests.get(self.url)
         page_source_code = html.fromstring(response.content)
@@ -31,7 +34,8 @@ class Models:
         }
 
     def generate(self):
-        for name, content in self:
+        self.check_dir()
+        for name, content in self.all_routes.items():
             output_filename = Path.joinpath(self.models_path, '%s.py' % name)
             self.json.write(content.encode('utf-8'))
             self.json.seek(0)
@@ -41,10 +45,6 @@ class Models:
                 check=True, timeout=5, stdout=subprocess.PIPE, universal_newlines=True)
             self.json.truncate()
         self.json.close()
-
-    def __iter__(self):
-        for name, route in self.all_routes.items():
-            yield name, route
 
 
 if __name__ == '__main__':
