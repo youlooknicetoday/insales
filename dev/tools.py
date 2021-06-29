@@ -11,28 +11,24 @@ from pathlib import Path
 class templates:
 
     DISPATCHER = {
-        lambda request: request.removesuffix('-json').endswith('s'): 'get_all',
-        lambda request: 'count' in request: 'count',
-        lambda request: 'get' in request: 'get',
-        lambda request: any(item in request for item in ('add', 'create', 'decline')): 'create',
-        lambda request: any(item in request for item in ('move', 'update')): 'update',
-        lambda request: any(item in request for item in ('delete', 'destroy', 'remove')): 'delete'
+        lambda uri: uri.removesuffix('-json').endswith('s'): 'get_all',
+        lambda uri: 'count' in uri: 'count', lambda uri: 'get' in uri: 'get',
+        lambda uri: any(item in uri for item in ('add', 'create', 'decline')): 'create',
+        lambda uri: any(item in uri for item in ('move', 'update')): 'update',
+        lambda uri: any(item in uri for item in ('delete', 'destroy', 'remove')): 'delete'
     }
 
-    def __init__(self, classname, actions: list[tuple[str, HtmlElement]]):
+    def __init__(self, classname, actions: list[HtmlElement]):
         self.classname = classname
         self.actions = actions
         self.result = []
 
     def process(self):
-        for action, node in self.actions:
-            self.generate(action, node)
-
-    def generate(self, action: str, node):
-        # preprocess node
-        return {
-            'get': self.generate_get
-        }[action](1, 2, 3)
+        for action in self.actions:
+            for key, value in self.__class__.DISPATCHER.items():
+                if key(action.attrib['id']):
+                    result = value
+                    break
 
     def generate_get(self, function_params, uri, return_type):
         uri = re.sub(r'\d', function_params, uri)
@@ -43,12 +39,8 @@ class templates:
             return {return_type}(**data)
         """.format(function_params=function_params, uri=uri, return_type=return_type)
 
-    @classmethod
-    def generate_update(cls):
-        ...
 
-
-class Models:
+class Codegen:
 
     """
     This module autogenerate models from official InSales API documentation
@@ -65,36 +57,24 @@ class Models:
         if not self.location.exists():
             self.location.mkdir()
 
-    def load_file(self, filename='InSales_API.html'):
+    def load_file(self, filename='InSales_API.html', save_file=False):
         if self.page_source_code is None:
-            file = self.location.parent.joinpath(filename)
-            if file.is_file():
-                self.page_source_code = html.parse(str(file))
+            filepath = self.location.parent.joinpath(filename)
+            if filepath.is_file():
+                self.page_source_code = html.parse(str(filepath))
             else:
                 response = requests.get(self.url)
-                self.page_source_code: HtmlElement = html.fromstring(response.content)
-                self.page_source_code.getroottree().write(str(file))
+                self.page_source_code = html.fromstring(response.content)
+                if save_file:
+                    self.page_source_code.getroottree().write(str(filepath))
         return self.page_source_code
-
-    def dispatch_request(self, request):
-        return {
-            request.removesuffix('-json').endswith('s'): 'get_all',
-            'count' in request: 'count', 'get' in request: 'get',
-            any(item in request for item in ('add', 'create', 'decline')): 'create',
-            any(item in request for item in ('move', 'update')): 'update',
-            any(item in request for item in ('delete', 'destroy', 'remove')): 'delete'
-        }.get(True, request)
 
     def generate_endpoints(self):
         for resource in self.page_source_code.xpath('//h2'):
             name = resource.text.replace(' ', '')
-
-            for article in resource.itersiblings():
-                result = self.dispatch_request(article.attrib['id'])
-                if result == 'get' and article.attrib['id'].removesuffix('-json').endswith('s'):
-                    result = 'get_all'
-                elif 'count' in article.attrib['id']:
-                    result = 'count'
+            articles = [article for article in resource.itersiblings()]
+            template = templates(name, articles)
+            template.process()
 
     @property
     def all_routes(self):
@@ -122,5 +102,5 @@ class Models:
 
 
 if __name__ == '__main__':
-    models = Models()
-    models.generate()
+    worker = Codegen()
+    worker.generate()
