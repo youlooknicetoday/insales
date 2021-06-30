@@ -1,5 +1,6 @@
 import requests
 
+from .config import load_config
 from .endpoints import (Product, Image, Collection)
 
 
@@ -9,9 +10,17 @@ class InSalesAPI:
         self.hostname = f'http://{hostname}'
         self.session = requests.Session()
         self.session.auth = (apikey, password)
-
+        self.session.headers.update({
+            'Content-Type': 'application/json; charset=utf-8',
+            'User-Agent': 'python/insalesapi',
+        })
         self.images = Image(self)
         self.products = Product(self)
+
+    @classmethod
+    def from_config(cls, path):
+        config = load_config(path)
+        return cls(*config)
 
     def __del__(self):
         self.session.close()

@@ -1,106 +1,100 @@
-import re
-import requests
 import subprocess
 import tempfile
 
 from lxml import html
-from lxml.html import HtmlElement
 from pathlib import Path
 
 
-class templates:
-
-    DISPATCHER = {
-        lambda uri: uri.removesuffix('-json').endswith('s'): 'get_all',
-        lambda uri: 'count' in uri: 'count', lambda uri: 'get' in uri: 'get',
-        lambda uri: any(item in uri for item in ('add', 'create', 'decline')): 'create',
-        lambda uri: any(item in uri for item in ('move', 'update')): 'update',
-        lambda uri: any(item in uri for item in ('delete', 'destroy', 'remove')): 'delete'
-    }
-
-    def __init__(self, classname, actions: list[HtmlElement]):
-        self.classname = classname
-        self.actions = actions
-        self.result = []
-
-    def process(self):
-        for action in self.actions:
-            for key, value in self.__class__.DISPATCHER.items():
-                if key(action.attrib['id']):
-                    result = value
-                    break
-
-    def generate_get(self, function_params, uri, return_type):
-        uri = re.sub(r'\d', function_params, uri)
-        return """
-        def get({function_params}) -> {return_type}:
-            uri = f'{uri}'
-            data = self._get(uri).json()
-            return {return_type}(**data)
-        """.format(function_params=function_params, uri=uri, return_type=return_type)
-
-
-class Codegen:
-
+class Parser:
     """
-    This module autogenerate models from official InSales API documentation
+    This class is responsible for parsing the documentation source code.
+    It finds resource sections, then all the methods for each resource.
     """
-    NS = {"re": "http://exslt.org/regular-expressions"}
 
-    def __init__(self):
-        self.url = 'https://api.insales.ru/?doc_format=JSON'
-        self.page_source_code = None
-        self.executable = __import__('sys').executable
-        self.location = Path(__file__).parent.resolve().joinpath('generated')
+    def load_file(self):
+        pass
 
-    def check_dir(self):
-        if not self.location.exists():
-            self.location.mkdir()
-
-    def load_file(self, filename='InSales_API.html', save_file=False):
-        if self.page_source_code is None:
-            filepath = self.location.parent.joinpath(filename)
-            if filepath.is_file():
-                self.page_source_code = html.parse(str(filepath))
-            else:
-                response = requests.get(self.url)
-                self.page_source_code = html.fromstring(response.content)
-                if save_file:
-                    self.page_source_code.getroottree().write(str(filepath))
-        return self.page_source_code
-
-    def generate_endpoints(self):
-        for resource in self.page_source_code.xpath('//h2'):
-            name = resource.text.replace(' ', '')
-            articles = [article for article in resource.itersiblings()]
-            template = templates(name, articles)
-            template.process()
+    def _find_resources(self) -> list[html.HtmlElement]:
+        pass
 
     @property
-    def all_routes(self):
-        response = requests.get(self.url)
-        page_source_code = html.fromstring(response.content)
-        nodes = page_source_code.xpath('//pre[starts-with(text (), "GET") and not(contains(text (), "s.json"))]')
-        return {
-            node.xpath('./ancestor::section/h2')[0].text:
-                node.xpath('./ancestor::div[@class="request"]/following-sibling::div/section[@class="body"]/pre/code')[0].text_content()
-            for node in nodes
+    def resources(self):
+        return {node.xpath('./h2')[0].text.replace(' ', ''): node for node in self._find_resources()}
+
+    def find_methods(self, resource):
+        # what about uri, params, json?
+        # parse GET to GET_ALL or COUNT
+        pass
+
+
+class Templates:
+    """
+    Contains template for methods
+    Available methods: GET, GET_ALL, COUNT, POST, PUT, DELETE
+    """
+    def __init__(self):
+        self.manager = {
+            'GET': self.get, 'GET_ALL': self.get_all, 'COUNT': self.count,
+            'POST': self.create, 'PUT': self.update, 'DELETE': self.delete,
         }
+        self._function_params = ['self', '/']
 
-    def generate(self):
-        self.check_dir()
-        with tempfile.NamedTemporaryFile(suffix='.json') as file:
-            for name, content in self.all_routes.items():
-                output_filename = Path.joinpath(self.location, '%s.py' % name)
-                file.write(content.encode('utf-8'))
-                file.seek(0)
-                subprocess.run([
-                    self.executable, '-m', 'json_to_models',
-                    '-m', name, file.name, '-f', 'pydantic', '--datetime', '-o', str(output_filename)],
-                    check=True, timeout=5, stdout=subprocess.PIPE, universal_newlines=True)
-                file.truncate()
+    def generate(self, method, **kwargs):
+        return self.manager[method](**kwargs)
+
+    def get(self, **kwargs):
+        pass
+
+    def get_all(self, **kwargs):
+        pass
+
+    def count(self, **kwargs):
+        pass
+
+    def create(self, **kwargs):
+        pass
+
+    def update(self, **kwargs):
+        pass
+
+    def delete(self, **kwargs):
+        pass
 
 
-if __name__ == '__main__':
-    worker = Codegen()
-    worker.generate()
+class Builder:
+    """
+    Generate directory with endpoints.py and schemas.py
+    """
+
+    def __init__(self):
+        self.parser = Parser()
+        self.templates = Templates()
+        self.location = Path(__file__).parent.resolve().joinpath('generated')
+        self.file = tempfile.NamedTemporaryFile(suffix='.json')
+        self.executable = __import__('sys').executable
+
+    def build_endpoint(self):
+        pass
+
+    def build_schema(self, data, name, path):
+        output_filename = path.joinpath('schemas.py')
+        self.file.write(data.encode('utf-8'))
+        self.file.seek(0)
+        subprocess.run([
+            self.executable, '-m', 'json_to_models',
+            '-m', name, self.file.name, '-f', 'pydantic', '--datetime', '-o', str(output_filename)],
+            check=True, timeout=5, stdout=subprocess.PIPE, universal_newlines=True)
+        self.file.truncate()
+
+    def build(self):
+        self.parser.load_file()
+        for name, resource in self.parser.resources.items():
+            location = self.location.joinpath(name.lower())
+            location.mkdir()
+            self.build_schema('data', name, location)  # have to return data from GET method
+            methods = self.parser.find_methods(resource)
+            endpoint = []
+            for method in methods:
+                template = self.templates.generate(method)
+                endpoint.append(template)
+        self.file.close()

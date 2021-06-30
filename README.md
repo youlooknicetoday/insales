@@ -8,10 +8,8 @@
 Инициализация
 ```python
 from insalesapi import InSalesAPI
-from insalesapi.config import load_config
 
-config = load_config('api.ini')
-api = InSalesAPI(*config)
+api = InSalesAPI.from_config('api.ini')
 ```
 Собираем все продукты по условиям
 ```python
