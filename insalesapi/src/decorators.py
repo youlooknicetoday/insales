@@ -12,7 +12,7 @@ def request(function):
         start = time.time()
         response = function(obj, uri, *args, **kwargs)
         if retry_after := response.headers.get('Retry-After'):
-            time.sleep(int(retry_after))
+            time.sleep(int(retry_after) + 2)
             response = function(obj, uri, *args, **kwargs)
         elif response.status_code not in (200, 201):
             logger.error(
@@ -22,6 +22,6 @@ def request(function):
         execution_time = int((time.time() - start) * 1000)
         logger.info(
             'status code: %s, execution time: %s ms, usage limit: %s',
-            response.status_code, execution_time, response.headers['API-Usage-Limit'])
+            response.status_code, execution_time, response.headers.get('API-Usage-Limit', 'Non limited request'))
         return response
     return wrapper

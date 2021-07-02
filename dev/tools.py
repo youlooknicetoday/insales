@@ -1,3 +1,4 @@
+import jinja2
 import subprocess
 import tempfile
 
@@ -18,12 +19,23 @@ class Parser:
         pass
 
     @property
-    def resources(self):
+    def resources(self) -> dict[str, html.HtmlElement]:
         return {node.xpath('./h2')[0].text.replace(' ', ''): node for node in self._find_resources()}
 
     def find_methods(self, resource):
-        # what about uri, params, json?
+        pass
+
+    def parse_method(self, method):
+        # uri, params, json
         # parse GET to GET_ALL or COUNT
+        pass
+
+    def generate_context(self, section):
+        context = {'resource': section, 'functions': []}
+        methods = self.find_methods(section)
+        for method in methods:
+            context['functions'].append(self.parse_method(method))
+        return context
         pass
 
 
@@ -37,7 +49,16 @@ class Templates:
             'GET': self.get, 'GET_ALL': self.get_all, 'COUNT': self.count,
             'POST': self.create, 'PUT': self.update, 'DELETE': self.delete,
         }
-        self._function_params = ['self', '/']
+        self.tpl = """class {{ resource -}} Controller(BaseController {%- if iterable %}, IterableMixin {%- endif %}):
+        {% for function in functions %}
+
+            def {{ function.name }}(self, /, {{ function.params | join(', ') }}) -> {{ resource }}:
+            uri = f'{{ function.uri }}'
+            data = self._get(uri).json()
+            return {{ resource }}(**data)
+
+        {% endfor %}
+        """
 
     def generate(self, method, **kwargs):
         return self.manager[method](**kwargs)
@@ -69,7 +90,7 @@ class Builder:
     def __init__(self):
         self.parser = Parser()
         self.templates = Templates()
-        self.location = Path(__file__).parent.resolve().joinpath('generated')
+        self.location = Path(__file__).parent.joinpath('generated').resolve()
         self.file = tempfile.NamedTemporaryFile(suffix='.json')
         self.executable = __import__('sys').executable
 

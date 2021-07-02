@@ -100,6 +100,11 @@ class ProductsController(BaseController, IterableMixin):
         product = self._update(uri, product_json).json()
         return Product(**product)
 
+    def search(self, /, query, page=1, **kwargs):
+        uri = 'search.json'
+        result = self._get_all(uri, q=query, page=page, **kwargs).json()
+        return result
+
     def __iter__(self) -> Iterator[Product]:
         for page in self.page_range:
             products = self.get_all(page, self.per_page)

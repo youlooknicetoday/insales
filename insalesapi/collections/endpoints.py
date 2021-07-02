@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 class CollectionsController(BaseController, IterableMixin):
 
-    def __init__(self):
-        self.where = self._filters.get(self.__class__)
+    #def __init__(self):
+        # self.where = self._filters.get(self.__class__)
 
     def get_all(
             self, /,

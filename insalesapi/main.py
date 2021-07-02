@@ -1,7 +1,7 @@
 import requests
 
 from .config import load_config
-from .endpoints import (Product, Image, Collection)
+from .endpoints import (Product, Image, Collection, Order)
 
 
 class InSalesAPI:
@@ -16,6 +16,8 @@ class InSalesAPI:
         })
         self.images = Image(self)
         self.products = Product(self)
+        self.orders = Order(self)
+        self.collections = Collection(self)
 
     @classmethod
     def from_config(cls, path):
