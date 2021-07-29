@@ -1,7 +1,7 @@
 import requests
 
-from .config import load_config
-from .endpoints import (Product, Image, Collection, Order)
+from insalesapi.config import load_config
+from insalesapi.endpoints import (Product, Image, Collection, Order)
 
 
 class InSalesAPI:
