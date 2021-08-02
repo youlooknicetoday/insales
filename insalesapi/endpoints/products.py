@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Union
 
 from ..schemas.products import Product
-from .base import BaseController, exclude_none
+from .base import BaseController
 
 
 class ProductsController(BaseController):
@@ -26,7 +26,7 @@ class ProductsController(BaseController):
             'updated_since': updated_since, 'from_id': from_id,
             'with_deleted': with_deleted, 'deleted': deleted,
         }
-        params = exclude_none(params)
+        params = self.exclude_none(params)
         return self._request('GET', uri, result_type=Product, many=True, params=params)
 
     def get_products_count(self) -> dict[str, int]:
