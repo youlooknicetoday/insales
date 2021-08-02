@@ -2,12 +2,11 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import HttpUrl
 from typing import Optional, Union
 
-from .schemas import Images, Image
-from ..src.endpoints import BaseController, IterableMixin
-from ..src.exceptions import DataNotProvided
+from insalesapi.schemas.images import Images, Image
+from .base import BaseController
 
 
-class ImagesController(BaseController, IterableMixin):
+class ImagesController(BaseController):
 
     def get_all(self, /, product_id: Union[int, str]) -> list[Image]:
         uri = f'admin/products/{product_id}/images.json'
@@ -32,7 +31,7 @@ class ImagesController(BaseController, IterableMixin):
         if image_url and image_attachment:
             raise ValueError('Only attachment or source url have to be passed')
         elif not image_url and not image_attachment:
-            raise DataNotProvided('Neither attachment nor source url was not passed')
+            raise ValueError('Neither attachment nor source url was not passed')
         image_json = jsonable_encoder({
             'image': {
                 'attachment': image_attachment,
@@ -57,7 +56,7 @@ class ImagesController(BaseController, IterableMixin):
             title: Optional[int] = None
     ) -> Image:
         if not position and not title:
-            raise DataNotProvided('At least one value have to be passed')
+            raise ValueError('At least one value have to be passed')
         uri = f'admin/products/{product_id}/images/{image_id}.json'
         image_json = jsonable_encoder({
             'image': {

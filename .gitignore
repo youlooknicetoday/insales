@@ -131,7 +131,7 @@ dmypy.json
 
 api.ini
 .idea
-insalesapi/images/files
+work/images/files
 analytics
 dev/models
 work/

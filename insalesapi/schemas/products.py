@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional, Union
 
-from ..images.schemas import Image
+from .images import Image
 
 
 class ProductOptionName(BaseModel):
@@ -120,4 +120,4 @@ class Product(BaseModel):
 
 
 class Products(BaseModel):
-    list: list[Product]
+    __root__: list[Product]
