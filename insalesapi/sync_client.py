@@ -1,8 +1,8 @@
 import logging
 
 from httpx import Client
-from .base import BaseClient
-from ..endpoints import EndpointsMixin
+from .base_client import BaseClient
+from .endpoints import EndpointsMixin
 
 
 class InSalesClient(BaseClient, EndpointsMixin):
@@ -32,7 +32,7 @@ class InSalesClient(BaseClient, EndpointsMixin):
             json=json,
             params=params,
         )
-        if result_type:
+        if result_type is not None:
             if many:
                 return [result_type(**data) for data in response.json()]
             return result_type(**response.json())

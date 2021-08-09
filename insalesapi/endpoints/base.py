@@ -8,6 +8,6 @@ def exclude_none(self, params):
 BaseController = type(
     'BaseController', (), {
         '__init__': lambda self, request: setattr(self, '_request', request),
-        'exclude_none': exclude_none,
+        '_exclude_none': exclude_none,
     }
 )

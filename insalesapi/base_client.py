@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-from ..config import load_config
+from .config import load_config
 
 
 class BaseClient(ABC):

@@ -22,11 +22,11 @@ class ProductsController(BaseController):
     ) -> list[Product]:
         uri = 'admin/products.json'
         params = {
-            'page': page, 'pre_page': per_page,
+            'page': page, 'per_page': per_page,
             'updated_since': updated_since, 'from_id': from_id,
             'with_deleted': with_deleted, 'deleted': deleted,
         }
-        params = self.exclude_none(params)
+        params = self._exclude_none(params)
         return self._request('GET', uri, result_type=Product, many=True, params=params)
 
     def get_products_count(self) -> dict[str, int]:

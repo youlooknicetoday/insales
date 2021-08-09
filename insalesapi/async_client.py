@@ -1,8 +1,8 @@
 import logging
 
 from httpx import AsyncClient
-from .base import BaseClient
-from ..endpoints import EndpointsMixin
+from .base_client import BaseClient
+from .endpoints import EndpointsMixin
 
 
 class InSalesAsyncClient(BaseClient, EndpointsMixin):
@@ -29,7 +29,7 @@ class InSalesAsyncClient(BaseClient, EndpointsMixin):
         response = await self._session.request(
             method=method, url=url, json=json, params=params,
         )
-        if result_type:
+        if result_type is not None:
             if many:
                 return [result_type(**data) for data in response.json()]
             return result_type(**response.json())
